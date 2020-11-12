@@ -42,6 +42,7 @@ class RopeConfigurationEnv(RopeFlattenEnv):
         elif self.observation_mode == 'cam_rgb':
             self.observation_space = Box(low=-np.inf, high=np.inf, shape=(self.camera_height, self.camera_width, 3 * 2),
                                          dtype=np.float32) # stack current image and goal image
+                                         
     def get_default_config(self, c='C'):
         """ Set the default config of the environment and load it to self.config """
         config = super().get_default_config()
@@ -69,7 +70,6 @@ class RopeConfigurationEnv(RopeFlattenEnv):
             print("config {} GoalCharacter {}".format(idx, goal_character))
 
         return cached_configs, cached_init_states
-        
 
     def generate_alphabet_positions(self):
         self.goal_characters_position = {}
@@ -174,6 +174,14 @@ class RopeConfigurationEnv(RopeFlattenEnv):
         
         return reward
             
+    def _reset(self):
+        obs = super()._reset()
+
+        self.performance_init = None
+        info = self._get_info()
+        self.performance_init = info['performance']
+
+        return obs
 
     def _get_obs(self):
         if self.observation_mode == 'cam_rgb':
